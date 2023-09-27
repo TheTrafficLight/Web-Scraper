@@ -10,16 +10,17 @@ program
     .option("-r, --recursive", "download images recursively", false)
     .option("-l, --level <value>", "maximum depth level", 5)
     .option("-p, --path <path>", "path to store images", "./data")
-    .argument("<url>", "url to scrape")
+    .argument("<url>", "url to scrape");
 program.parse(process.argv);
 
 //variables for the program
 const options = program.opts();
 const url = program.args[0];
 const websites = [url];
-const scrapedWebsites = []
-const folderName = options.path
-const imageExtentions = ["jpeg", "jpg", "png", "gif", "bmp"]
+const scrapedWebsites = [];
+const folderName = options.path;
+const imageExtentions = ["jpeg", "jpg", "png", "gif", "bmp"];
+var websiteCount = 0
 
 //check that options have correct values for the program
 if(!Number.isInteger(options.level * 1)) {
@@ -30,11 +31,11 @@ if(!Number.isInteger(options.level * 1)) {
 try {
     if (!fs.existsSync(folderName)){
         //if the folder doesn't exist, make a folder
-        fs.mkdirSync(folderName)
-        console.log("created folder: " + folderName)
+        fs.mkdirSync(folderName);
+        console.log("created folder: " + folderName);
     }
 } catch (error) {
-    console.error("directory error")
+    console.error("directory error");
 }
 
 //get the urls of images    
@@ -44,11 +45,14 @@ async function getImages(link, depth = 0) {
             //access the website data
             const response = await axios.get(link, {responseType: "document"});
             const $ = cheerio.load(response.data);
-            scrapedWebsites.push(link)
+            scrapedWebsites.push(link);
+            websiteCount ++
+            console.log("downloading images from " + link)
+            console.log("total websites accessed = " + websiteCount)
             
             //check if there are images on the website
             if ($("img").length === 0) {
-                console.log("No images found")
+                console.log("No images found");
             } else{
                 //loop through each image and get the src value
                 $("img").each(async(index, element) => {
@@ -77,12 +81,12 @@ async function getImages(link, depth = 0) {
                                     if (src.split(".").pop() == fileExtention || src.split(".").pop() == "jpg") {
                                         let filePath = path.join(folderName, fileName);
                                         fs.writeFileSync(filePath, imageData);
-                                        console.log("downloaded image to " + folderName);
+                                        //console.log("downloaded image to " + folderName);
                                     } else {
                                         //add the file extention to the image path
                                         let filePath = path.join(folderName, fileName + "." + fileExtention);
                                         fs.writeFileSync(filePath, imageData);
-                                        console.log("downloaded image to " + folderName);
+                                        //console.log("downloaded image to " + folderName);
                                     }
                                 }
                             }
