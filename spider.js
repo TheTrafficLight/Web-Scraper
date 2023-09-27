@@ -10,7 +10,6 @@ program
     .option("-r, --recursive", "download images recursively", false)
     .option("-l, --level <value>", "maximum depth level", 5)
     .option("-p, --path <path>", "path to store images", "./data")
-    .option("-m --memory", "use memory data to prevent duplicate website scraping", true)
     .argument("<url>", "url to scrape")
 program.parse(process.argv);
 
@@ -30,8 +29,9 @@ if(!Number.isInteger(options.level * 1)) {
 //check if a folder already exists
 try {
     if (!fs.existsSync(folderName)){
+        //if the folder doesn't exist, make a folder
         fs.mkdirSync(folderName)
-        console.log("folder made")
+        console.log("created folder: " + folderName)
     }
 } catch (error) {
     console.error("directory error")
@@ -87,7 +87,7 @@ async function getImages(link, depth = 0) {
                                 }
                             }
                         } catch (error) {
-                            console.error("error accessing src data, likely invalid file type");
+                            console.error("error accessing src data");
                         }
                     }
                 })
@@ -96,7 +96,7 @@ async function getImages(link, depth = 0) {
                 getLinks(link, depth + 1);
             }
         } catch (error) {
-            console.error("error accessing website data, website likely blocked");
+            console.error("error accessing website data");
         }
     }
 }
@@ -142,6 +142,7 @@ function convertLinks(link) {
 }
 
 //run the code either recursively or only for the first website
+//this is the start of all of the functions
 if (options.recursive){
     getImages(url, options.level)
 } else {
