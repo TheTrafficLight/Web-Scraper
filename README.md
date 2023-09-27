@@ -1,6 +1,7 @@
 # Web-Scraper
 
 **SPIDER.JS**
+
 spider.js is an image extractor
 
 requires node.js
@@ -34,6 +35,7 @@ gif
 bmp
 
 **SCORPION.JS**
+
 scorpion.js is a metadata extractor
 metadata will be stored in a csv file
 
