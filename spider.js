@@ -12,17 +12,30 @@ program
     .option("-p, --path <path>", "path to store images", "./data")
     .option("-m --memory", "use memory data to prevent duplicate website scraping", true)
     .argument("<url>", "url to scrape")
-    .parse(process.argv);
+program.parse(process.argv);
 
+//variables for the program
 const options = program.opts();
 const url = program.args[0];
 const websites = [url];
 const scrapedWebsites = []
+const folderName = options.path
+const imageExtentions = ["jpeg", "jpg", "png", "gif", "bmp"]
 
 //check that options have correct values for the program
 if(!Number.isInteger(options.level * 1)) {
     console.error("ERROR: depth level value must be integer");
 } else {
+
+//check if a folder already exists
+try {
+    if (!fs.existsSync(folderName)){
+        fs.mkdirSync(folderName)
+        console.log("folder made")
+    }
+} catch (error) {
+    console.error("directory error")
+}
 
 //get the urls of images    
 async function getImages(link, depth = 0) {
@@ -58,21 +71,23 @@ async function getImages(link, depth = 0) {
                                 if (src.includes("/")) {
                                     fileName = (src.split("/").pop());
                                 }
-        
-                                //check if the url already has a file extention and if it matches up with the MIME fileType
-                                if (src.split(".").pop() == fileExtention) {
-                                    let filePath = path.join(options.path, fileName);
-                                    fs.writeFileSync(filePath, imageData);
-                                    console.log("downloaded image to " + options.path);
-                                } else {
-                                    //add the file extention to the image path
-                                    let filePath = path.join(options.path, fileName + "." + fileExtention);
-                                    fs.writeFileSync(filePath, imageData);
-                                    console.log("downloaded image to " + options.path);
+                                //only download the image if it is of certain file types
+                                if (imageExtentions.includes(fileExtention)){
+                                    //check if the url already has a file extention and if it matches up with the MIME fileType
+                                    if (src.split(".").pop() == fileExtention || src.split(".").pop() == "jpg") {
+                                        let filePath = path.join(folderName, fileName);
+                                        fs.writeFileSync(filePath, imageData);
+                                        console.log("downloaded image to " + folderName);
+                                    } else {
+                                        //add the file extention to the image path
+                                        let filePath = path.join(folderName, fileName + "." + fileExtention);
+                                        fs.writeFileSync(filePath, imageData);
+                                        console.log("downloaded image to " + folderName);
+                                    }
                                 }
                             }
                         } catch (error) {
-                            console.error("error getting src data for " + src);
+                            console.error("error accessing src data, likely invalid file type");
                         }
                     }
                 })
@@ -81,7 +96,7 @@ async function getImages(link, depth = 0) {
                 getLinks(link, depth + 1);
             }
         } catch (error) {
-            console.error("error accessing website data");
+            console.error("error accessing website data, website likely blocked");
         }
     }
 }
@@ -105,7 +120,7 @@ async function getLinks(link, depth) {
             
         })
     } catch (error) {
-        console.error("error getting links")
+        console.error("error accessing links")
     }
 }
 
@@ -131,6 +146,5 @@ if (options.recursive){
     getImages(url, options.level)
 } else {
     getImages(url, 0)
-    console.log("getting images");
 }
 }
