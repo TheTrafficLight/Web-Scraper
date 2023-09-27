@@ -1,5 +1,7 @@
 # Web-Scraper
 
+
+
 **SPIDER.JS**
 
 spider.js is an image extractor
@@ -33,6 +35,8 @@ jpeg/jpg
 png
 gif
 bmp
+
+
 
 **SCORPION.JS**
 
